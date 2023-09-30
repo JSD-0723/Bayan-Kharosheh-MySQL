@@ -10,7 +10,7 @@
     "forceConsistentCasingInFileNames": true
   },
   "include": [
-    "src/**/*.ts",     // Include all .ts files in the src directory
-    "server.ts"         // Include server.ts even though it's outside rootDir
+    "src/**/*.ts", // Include all .ts files in the src directory
+    "server.ts" // Include server.ts even though it's outside rootDir
   ]
 }

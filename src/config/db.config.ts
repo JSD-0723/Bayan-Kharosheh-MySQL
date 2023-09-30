@@ -1,13 +1,7 @@
-import { Sequelize } from "sequelize";
-
-const sequelize = new Sequelize(
-  "books_library",
-  "root",
-  "",
-  {
-    host: "localhost", 
-    dialect: "mysql",
-  }
-);
-
-export default sequelize;
+export default {
+  HOST: "localhost",
+  USER: "root",
+  PASSWORD: "",
+  DB: "books_library",
+  dialect: "mysql" as const,
+};
