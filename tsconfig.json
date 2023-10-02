@@ -12,5 +12,6 @@
   "include": [
     "src/**/*.ts", // Include all .ts files in the src directory
     "server.ts" // Include server.ts even though it's outside rootDir
-  ]
+  ],
+  "files": ["./src/interfaces/custom.d.ts"]
 }

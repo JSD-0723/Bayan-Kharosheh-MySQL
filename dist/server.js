@@ -11,9 +11,9 @@ const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use('/api', book_routes_1.default);
 app.use('/api', user_routes_1.default);
-sequelize_config_1.default.sync().then(() => {
-    console.log('Database tables have been synchronized');
-});
-app.listen(3000, () => {
-    console.log('Server is running on port 3000');
+// app.use(errorHandlerMiddleware);
+sequelize_config_1.default.sync({ alter: true }).then(() => {
+    app.listen(8000, () => {
+        console.log('Server is running on port 3000');
+    });
 });

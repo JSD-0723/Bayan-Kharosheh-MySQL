@@ -10,11 +10,10 @@ app.use(express.json());
 app.use('/api', bookRoutes);
 app.use('/api', userRoutes);
 
+// app.use(errorHandlerMiddleware);
 
-sequelize.sync().then(() => {
-  console.log('Database tables have been synchronized');
-});
-
-app.listen(3000, () => {
-  console.log('Server is running on port 3000');
+sequelize.sync({ alter: true }).then(() => {
+  app.listen(8000, () => {
+    console.log('Server is running on port 3000');
+  });
 });

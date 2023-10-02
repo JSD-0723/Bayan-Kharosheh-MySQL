@@ -17,29 +17,57 @@ const book_models_1 = __importDefault(require("../models/book.models"));
 // Create a new book
 const createBook = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { title, author } = req.body;
-        const book = yield book_models_1.default.create({ title, author });
-        return res.status(201).json(book);
+        const bookBody = req.body;
+        // Check if the book already exists
+        const existingBook = yield book_models_1.default.findOne({
+            where: {
+                author: bookBody.author,
+                title: bookBody.title,
+                // Add other fields as needed for uniqueness check
+            },
+        });
+        if (existingBook) {
+            throw new Error("Book already exists");
+        }
+        const newBook = yield book_models_1.default.create({
+            title: bookBody.title,
+            author: bookBody.author,
+            // Add other fields as needed
+            userId: req.userId, // Assuming you have the user ID from authentication
+        });
+        res.status(201).json({
+            status: 201,
+            message: "Book is created successfully",
+            data: newBook, // You can also send the created book data back if needed
+        });
     }
     catch (error) {
-        console.error('Error creating book:', error);
-        return res.status(500).json({ error: 'Error creating book' });
+        res.status(400).json({
+            status: 400,
+            message: error,
+        });
     }
 });
 exports.createBook = createBook;
 // Get a book by ID
 const getBookById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const bookId = req.params.id;
+        const bookId = Number(req.params.id);
+        // Find the book by ID using Sequelize
         const book = yield book_models_1.default.findByPk(bookId);
         if (!book) {
-            return res.status(404).json({ error: 'Book not found' });
+            throw new Error("Book not found");
         }
-        return res.json(book);
+        res.status(200).json({
+            status: 200,
+            data: book,
+        });
     }
     catch (error) {
-        console.error('Error fetching book:', error);
-        return res.status(500).json({ error: 'Error fetching book' });
+        res.status(404).json({
+            status: 404,
+            message: error,
+        });
     }
 });
 exports.getBookById = getBookById;
@@ -50,8 +78,8 @@ const getAllBooks = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         return res.json(books);
     }
     catch (error) {
-        console.error('Error fetching books:', error);
-        return res.status(500).json({ error: 'Error fetching books' });
+        console.error("Error fetching books:", error);
+        return res.status(500).json({ error: "Error fetching books" });
     }
 });
 exports.getAllBooks = getAllBooks;
@@ -60,16 +88,25 @@ const updateBook = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     try {
         const bookId = req.params.id;
         const { title, author } = req.body;
+        const userId = req.userId; // Get the authenticated user's ID from the JWT middleware
         const book = yield book_models_1.default.findByPk(bookId);
         if (!book) {
-            return res.status(404).json({ error: 'Book not found' });
+            return res.status(404).json({ error: "Book not found" });
         }
-        yield book.update({ title, author });
-        return res.json(book);
+        // Check if the book is already rented by the user
+        if (book.get("userId") === userId) {
+            return res
+                .status(400)
+                .json({ error: "You have already rented this book" });
+        }
+        // Rent the book by associating it with the user
+        book.set("userId", userId); // Use set() to update the property
+        yield book.save();
+        return res.status(200).json({ message: "Book rented successfully" });
     }
     catch (error) {
-        console.error('Error updating book:', error);
-        return res.status(500).json({ error: 'Error updating book' });
+        console.error("Error updating book:", error);
+        return res.status(500).json({ error: "Error updating book" });
     }
 });
 exports.updateBook = updateBook;
@@ -79,14 +116,14 @@ const deleteBook = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const bookId = req.params.id;
         const book = yield book_models_1.default.findByPk(bookId);
         if (!book) {
-            return res.status(404).json({ error: 'Book not found' });
+            return res.status(404).json({ error: "Book not found" });
         }
         yield book.destroy();
         return res.status(204).send(); // No content
     }
     catch (error) {
-        console.error('Error deleting book:', error);
-        return res.status(500).json({ error: 'Error deleting book' });
+        console.error("Error deleting book:", error);
+        return res.status(500).json({ error: "Error deleting book" });
     }
 });
 exports.deleteBook = deleteBook;

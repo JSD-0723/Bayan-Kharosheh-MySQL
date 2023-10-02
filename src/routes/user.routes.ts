@@ -3,7 +3,10 @@ import * as userController from "../controllers/user.controller";
 
 const router = express.Router();
 
-// Create a new book
-router.post("/users", userController.createUser);
+// register
+router.post("/register", userController.register);
+
+// login
+router.post("/login", userController.login);
 
 export default router;
